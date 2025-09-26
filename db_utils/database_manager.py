@@ -9,11 +9,6 @@ from utils.console_utils import *
 from utils.input_utils import *
 from utils.settings import *
 
-# load current settings
-settings = load_settings()
-
-DATABASE_URL = "postgresql+psycopg2://postgres:qwpoeriuty123@localhost:5432"
-
 ''' METHODS: Database Operations '''
 # [ METHOD ]: Display existing databases
 def display_databases() -> None:
@@ -24,52 +19,56 @@ def display_databases() -> None:
         result = conn.execute(text("SELECT datname FROM pg_database WHERE datistemplate = false;"))
         databases = result.fetchall()
 
-    print("[ Database List ]")
-    display_format(17, '=')
+    display_center("[ Database List ]", 32)
+    display_format(32, '=')
     for db in databases:
         print(f"* {db[0]}")
-    display_format(17, '=')
+    display_format(32, '=')
 
 # [ METHOD ]: Attempt to create a database if not existing
 def check_database_exists(name: str) -> bool:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=True) # create engine for specified database name
+    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
     return database_exists(engine.url)
 
 # [ METHOD ]: Attempt to create a database if not existing
 def create_new_database(name: str) -> None:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=True) # create engine for specified database name
+    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
 
     # create database if non-existing
     if not database_exists(engine.url):
         create_database(engine.url) # utility to create database
-        print(f"Database '{name}' created!")
+        success_message(f"Database '{name}' created!")
     else: # ERROR: Already existing database
-        print(f"Database '{name}' already exists.")
+        error_message(f"Database '{name}' already exists.")
+        press_to_continue()
 
 # [ METHOD ]: Drop a database if it exists
 def drop_selected_database(name: str) -> None:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=True) # create engine for specified database name
+    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
 
     if check_database_exists(name):
         drop_database(engine.url)
-        print(f"Database '{name}' has been dropped.")
+        success_message(f"Database '{name}' has been dropped.")
     else:
-        print(f"Database '{name}' does not exist.")
+        error_message(f"Database '{name}' does not exist.")
 
 # [ METHOD ]: Select database
 def select_database(name: str):
-    return create_engine(f"{DATABASE_URL}/{name}", echo=True)
+    # return no engine to unselect a databsae
+    if not name:
+        return None
+    return create_engine(f"{DATABASE_URL}/{name}", echo=False)
 
 # [ METHOD ]: Show current database details
 def show_database_details():
     current_database = settings.get("current_database")
 
     if not current_database:
-        print("No database selected.")
+        error_message("No database selected.")
         return
 
     # Create engine connected to the selected database
-    engine = create_engine(f"{DATABASE_URL}/{current_database}", echo=True)
+    engine = create_engine(f"{DATABASE_URL}/{current_database}", echo=False)
 
     with engine.connect() as conn:
         result = conn.execute(text(f"""
@@ -87,12 +86,14 @@ def show_database_details():
         details = result.fetchone()
 
     if details:
-        print(f"[ Database - '{current_database}' ]")
-        print(f"Name: {details.database_name}")
-        print(f"Size: {details.size}")
-        print(f"Encoding: {details.encoding}")
-        print(f"Collation: {details.collation}")
-        print(f"CType: {details.ctype}")
-        print(f"Template: {details.is_template}")
+        display_center(f"[ Database - '{current_database}' ]", 32)
+        display_format(32, '=')
+        print(f"{'Name':>12}: {details.database_name}")
+        print(f"{'Size':>12}: {details.size}")
+        print(f"{'Encoding':>12}: {details.encoding}")
+        print(f"{'Collation':>12}: {details.collation}")
+        print(f"{'CType':>12}: {details.ctype}")
+        print(f"{'Template':>12}: {details.is_template}")
+        display_format(32, '=')
     else:
-        print(f"Database '{current_database}' not found.")
+        error_message(f"Database '{current_database}' not found.")

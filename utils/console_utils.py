@@ -1,3 +1,7 @@
+# Imports: Utilities
+
+
+# Imports: Standard
 import os, time, sys, shutil
 from typing import Optional
 
@@ -36,9 +40,17 @@ def display_header(title_name: str, interface_name: str, width: Optional[int] = 
     if delay_seconds:
         time.sleep(delay_seconds)
 
+# UTILITY: Display formatted success message to the user
+def success_message(message):
+    print(f"[SUCCESS] {message}", flush=True)
+
+# UTILITY: Display formatted informational message to the user
+def info_message(message):
+    print(f"[INFO] {message}", flush=True)
+
 # UTILITY: Display formatted error message to the user
 def error_message(message, delay_seconds: Optional[float] = None):
-    print(f"ERROR: {message}.", end="", flush=True)
+    print(f"[ERROR] {message}", end="", flush=True)
 
     if delay_seconds:
         time.sleep(delay_seconds)
@@ -50,7 +62,6 @@ def error_message(message, delay_seconds: Optional[float] = None):
 # UTILITY: Insert 'n' spaces
 def insert_spaces(n):
     print(' ' * (n + 1), end="")
-    
     
 # UTILITY: Display text with a line effect
 def line_delay_animation(string_input, delay_seconds: Optional[float] = None):
@@ -67,4 +78,7 @@ def clear_screen():
 # [ UTILITY ]: Press any key to continue
 def press_to_continue():
     input("Press any key to continue...")
-    clear_screen()
+
+# [ UTILITY ]: Center string
+def display_center(string: str, width: int, symbol: str = " "):
+    print(string.center(width, symbol))

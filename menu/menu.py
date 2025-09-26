@@ -1,52 +1,53 @@
 # Imports: Menus
-from databases_menu import *
-from tables_menu import *
+from .databases_menu import *
+from .tables_menu import *
 
 # Imports: Utilities
-from utilities.console_utils import *
-from utilities.input_utils import *
-from utilities.settings import *
+from utils.console_utils import *
+from utils.input_utils import *
+from utils.settings import *
 
 # Imports: Standard
 import time
-
-# load current settings
-settings = load_settings()
 
 ''' METHODS: User Interface '''
 # [ UI ]: Navigate to 'Databases' menu
 def go_to_databases():
     while True:
         clear_screen()
-        index: int = 1 # to keep track of the current function's index
 
         database_operations = [
+            "Back",
             "Display Databases",
             "Create New Database",
             "Drop Database",
             "Select Database",
-            "Show Database Details",
-            "Back"
+            "Show Database Details"
         ]
 
-        # display menu operations
+
+        # display 'Databases' header
         display_header("ZenDB", "Databases", width=30, symbol="=")
+        display_selected_database() # display current selected database
+        display_function(0, "Exit")
+        print("=" * 32)
 
-        # display current selected database
-        display_selected_database()
-
-        for index, operation in enumerate(database_operations, start=1):
+        # display 'Databases' operations
+        for index, operation in enumerate(database_operations[1:], start=1):
             display_function(index, operation)
-        index = 1 # reset index counter
         display_format(32, symbol="=")
 
         # get user choice
         int_input: int = get_int("user choice", ["required"])
 
+        clear_screen() # clear console screen before navigating
+
         # do operation based on user choice
         match int_input:
+            case 0:
+                break
             case 1:
-                ()
+                display_databases_menu()
             case 2:
                 create_new_database_menu()
             case 3:
@@ -55,41 +56,41 @@ def go_to_databases():
                 select_database_menu()
             case 5:
                 show_database_details_menu()
-            case 6:
-                break
 
 # [ UI ]: Navigate to 'Tables' menu
 def go_to_tables():
     while True:
         clear_screen()
-        index: int = 1 # to keep track of the current function's index
 
         tables_operations = [
+            "Back",
             "Display Tables",
             "Create New Table",
             "Drop Table",
             "Describe Table Schema",
             "Add/Remove Table Columns",
-            "Rename Table",
-            "Back"
+            "Rename Table"
         ]
 
-        # display menu operations
+        # display 'Databases' header
         display_header("ZenDB", "Tables", width=30, symbol="=")
+        display_function(0, "Exit")
+        print("=" * 32)
 
-        # display current selected database
-        display_selected_database()
-
-        for index, operation in enumerate(tables_operations, start=1):
+        # display 'Databases' operations
+        for index, operation in enumerate(tables_operations[1:], start=1):
             display_function(index, operation)
-        index = 1 # reset index counter
         display_format(32, symbol="=")
 
         # get user choice
         int_input: int = get_int("user choice", ["required"])
 
+        clear_screen() # clear console screen before navigating
+        
         # do operation based on user choice
         match int_input:
+            case 0:
+                break
             case 1:
                 display_tables_menu()
             case 2:
@@ -102,8 +103,6 @@ def go_to_tables():
                 add_or_remove_table_columns_menu()
             case 6:
                 rename_table_menu()
-            case 7:
-                break
 
 # [ UI ]: Navigate to 'Data Operations' menu
 def go_to_data_operations():
@@ -125,23 +124,25 @@ def go_to_settings():
 def display_main_menu() -> None:
     while True:
         clear_screen()
-        index: int = 1 # to keep track of the current function's index
 
         menu_operations = [
+            "Exit",
             "Databases",
             "Tables",
             "Data Operations",
             "Schema Tools",
             "Utilities",
             "Settings",
-            "Exit"
         ]
 
-        # display menu operations
+        # display 'Main Menu' header
         display_header("ZenDB", "Main Menu", width=30, symbol="=")
-        for index, operation in enumerate(menu_operations, start=1):
+        display_function(0, "Exit")
+        print("=" * 32)
+
+        # display 'Main Menu' operations
+        for index, operation in enumerate(menu_operations[1:], start=1):
             display_function(index, operation)
-        index = 1 # reset index counter
         display_format(32, symbol="=")
 
         # get user choice
@@ -149,6 +150,10 @@ def display_main_menu() -> None:
 
         # do operation based on user choice
         match int_input:
+            case 0: # Exit system
+                print("Exiting ZenDB...", end="")
+                time.sleep(2)
+                exit(0)
             case 1:
                 go_to_databases()
             case 2:
@@ -161,7 +166,3 @@ def display_main_menu() -> None:
                 go_to_utilities()
             case 6:
                 go_to_settings()
-            case 7: # Exit system
-                print("Exiting ZenDB...", end="")
-                time.sleep(2)
-                exit(0)

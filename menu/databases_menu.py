@@ -6,15 +6,11 @@ from utils.settings import *
 # Imports: Database Manager
 from db_utils.database_manager import *
 
-# load current settings
-settings = load_settings()
-
 ''' METHODS: Database Menu '''
 # [ METHOD ]: Display existing databases
 def display_databases_menu():
     display_databases()
     press_to_continue()
-    pass
 
 # [ METHOD ]: Create a new database
 def create_new_database_menu():
@@ -23,19 +19,23 @@ def create_new_database_menu():
 
     while True:
         # prompt user to enter a database name
-        db_name: str = get_str("Database Name", ['required'])
+        db_name: str = get_str("database name", ['required'])
 
+        # cancel creating database if user provided no database name
+        if not db_name:
+            info_message("Database creation cancelled")
+            press_to_continue()
+            return
+        
         # ERROR: Existing database
         if check_database_exists(db_name):
-            error_message(f"Database with name '{db_name} already exists'")
-            press_to_continue()
+            error_message(f"Database with name '{db_name}' already exists", 2)
         else: break
         
     # create database if unique database name
     create_new_database(db_name)
 
     press_to_continue()
-    pass
 
 # [ METHOD ]: Drop (delete) an existing database
 def drop_database_menu():
@@ -44,33 +44,48 @@ def drop_database_menu():
 
     while True:
         # prompt user to enter a database name
-        db_name: str = get_str("Database Name", ['required'])
+        db_name: str = get_str("database name", ['required'])
 
+        # cancel creating database if user provided no database name
+        if not db_name:
+            info_message("Database dropping cancelled")
+            press_to_continue()
+            return
+        
         # ERROR: Non-existing database
         if not check_database_exists(db_name):
-            error_message(f"Database with name '{db_name} does not exist'")
-            press_to_continue()
+            error_message(f"Database with name '{db_name}' does not exist", 2)
         else: break
 
     # drop (delete) database if existing
     drop_selected_database(db_name)
 
     press_to_continue()
-    pass
 
 # [ METHOD ]: Select an existing database
 def select_database_menu():
+    global settings, current_engine
+
     # display existing databases
     display_databases()
 
     while True:
         # prompt user to enter a database name
-        db_name: str = get_str("Database Name", ['required'])
+        db_name: str = get_str("database name ['none' to unselect]", ['required'])
+
+        # unselect database
+        if db_name == "none" or not db_name:
+            settings["current_database"] = ""
+            save_settings(settings)
+
+            current_engine = None
+            success_message(f"Disconnected to '{db_name}'!")
+            press_to_continue()
+            return # return to 'Databases' menu
 
         # ERROR: Non-existing database
-        if not check_database_exists(db_name):
-            error_message(f"Database with name '{db_name} does not exist'")
-            press_to_continue()
+        elif not check_database_exists(db_name):
+            error_message(f"Database with name '{db_name}' does not exist", 2)
         else: break
 
     # save selected database name in 'config.json'
@@ -78,11 +93,10 @@ def select_database_menu():
     save_settings(settings)
 
     # refer to the selected database for future database operations
-    engine = select_database(db_name)
-    print(f"Connected to database '{db_name}'!")
+    current_engine = select_database(db_name)
+    success_message(f"Connected to database '{db_name}'!")
     
     press_to_continue()
-    pass
 
 # [ METHOD ]: Show selected database's details
 def show_database_details_menu():
@@ -90,4 +104,3 @@ def show_database_details_menu():
     show_database_details()
     
     press_to_continue()
-    pass

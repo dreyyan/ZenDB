@@ -1,5 +1,4 @@
 # ZenDB: 
-
 ### INSTALLATION
 > Note: Make sure to create a Python virtual environment to avoid cluttering
 #### 1. Install SQLAlchemy and required packages:
@@ -17,4 +16,11 @@ pip install cx_Oracle              # Oracle
 #### 3. Verify installation
 ```powershell
 python -c "import sqlalchemy; print(sqlalchemy.__version__)"
+```
+
+
+### DEBUGGING
+#### 1. Run program
+```powershell
+py -m main
 ```

@@ -29,7 +29,7 @@ def create_new_database_menu():
         
         # ERROR: Existing database
         if check_database_exists(db_name):
-            error_message(f"Database with name '{db_name}' already exists", 2)
+            error_message_with_delay(f"Database with name '{db_name}' already exists", 2)
         else: break
         
     # create database if unique database name
@@ -54,7 +54,7 @@ def drop_database_menu():
         
         # ERROR: Non-existing database
         if not check_database_exists(db_name):
-            error_message(f"Database with name '{db_name}' does not exist", 2)
+            error_message_with_delay(f"Database with name '{db_name}' does not exist", 2)
         else: break
 
     # drop (delete) database if existing
@@ -63,8 +63,8 @@ def drop_database_menu():
     press_to_continue()
 
 # [ METHOD ]: Select an existing database
-def select_database_menu():
-    global settings, current_engine
+def connect_database_menu():
+    global settings, current_engine, current_database
 
     # display existing databases
     display_databases()
@@ -72,30 +72,26 @@ def select_database_menu():
     while True:
         # prompt user to enter a database name
         db_name: str = get_str("database name ['none' to unselect]", ['required'])
-
+        
         # unselect database
-        if db_name == "none" or not db_name:
-            settings["current_database"] = ""
-            save_settings(settings)
+        if db_name.lower() == "none" or not db_name:
+            if not current_database:
+                error_message("No database currently connected.")
+                press_to_continue()
+                return
 
-            current_engine = None
-            success_message(f"Disconnected to '{db_name}'!")
+            previous_database = current_database
+            connect_database("")
             press_to_continue()
-            return # return to 'Databases' menu
+            return
 
         # ERROR: Non-existing database
         elif not check_database_exists(db_name):
-            error_message(f"Database with name '{db_name}' does not exist", 2)
-        else: break
+            error_message_with_delay(f"Database '{db_name}' does not exist", 2)
+        else:
+            break
 
-    # save selected database name in 'config.json'
-    settings["current_database"] = db_name
-    save_settings(settings)
-
-    # refer to the selected database for future database operations
-    current_engine = select_database(db_name)
-    success_message(f"Connected to database '{db_name}'!")
-    
+    connect_database(db_name)
     press_to_continue()
 
 # [ METHOD ]: Show selected database's details

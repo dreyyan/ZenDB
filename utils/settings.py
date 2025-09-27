@@ -1,5 +1,5 @@
 # Imports: SQLAlchemy
-from sqlalchemy import create_engine # for creating the db connection
+from sqlalchemy import Engine, create_engine # for creating the db connection
 
 # Imports: Utilities
 from utils.console_utils import display_format
@@ -7,9 +7,12 @@ from utils.console_utils import display_format
 # Imports: Standard
 import json
 
-# Links/Directories
+# SETTINGS: Links/Directories
 CONFIG_FILE = "config.json"
 DATABASE_URL = "postgresql+psycopg2://postgres:qwpoeriuty123@localhost:5432"
+
+current_database: str = "postgres"
+current_table: str = ""
 
 # [ UTILITY ]: Load current settings from 'config.json'
 def load_settings():
@@ -26,17 +29,24 @@ settings = load_settings()
 
 # [ UTILITY ]: Display currently selected database
 def display_selected_database():
-    current_database: str = settings.get("current_database")
-    print(f"Selected: {"N/A" if current_database == "" else current_database}")
+    global current_database, settings
+    settings = load_settings()  # reload config.json
+    current_database = settings.get("current_database", "")
+    print(f"Selected: {'N/A' if not current_database else current_database}")
     display_format(32, symbol="=")
 
-settings = load_settings() # Load saved settings from config.json
-current_engine = None # Initialize current_engine
+# [ UTILITY ]: Display currently selected table
+def display_selected_table():
+    global current_table
+    current_table = settings.get("current_table")
+    print(f"Selected: {"N/A" if current_table == "" else current_table}")
+    display_format(32, symbol="=")
+
+settings = load_settings()  # Load saved settings from config.json
+current_database = settings.get("current_database", "")
+current_table = settings.get("current_table", "")
+current_engine = None
 
 # Auto-load engine if database is already selected
-if settings.get("current_database"):
-    current_engine = create_engine(f"{DATABASE_URL}/{settings['current_database']}", echo=True)
-
-# load current settings
-settings = load_settings()
-current_engine = None
+if current_database:
+    current_engine = create_engine(f"{DATABASE_URL}/{current_database}", echo=True)

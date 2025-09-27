@@ -21,7 +21,7 @@ def go_to_databases():
             "Display Databases",
             "Create New Database",
             "Drop Database",
-            "Select Database",
+            "Connect Database",
             "Show Database Details"
         ]
 
@@ -53,7 +53,7 @@ def go_to_databases():
             case 3:
                 drop_database_menu()
             case 4:
-                select_database_menu()
+                connect_database_menu()
             case 5:
                 show_database_details_menu()
 
@@ -67,6 +67,7 @@ def go_to_tables():
             "Display Tables",
             "Create New Table",
             "Drop Table",
+            "Select Table",
             "Describe Table Schema",
             "Add/Remove Table Columns",
             "Rename Table"
@@ -74,6 +75,7 @@ def go_to_tables():
 
         # display 'Databases' header
         display_header("ZenDB", "Tables", width=30, symbol="=")
+        display_selected_table() # display current selected database
         display_function(0, "Exit")
         print("=" * 32)
 
@@ -106,7 +108,49 @@ def go_to_tables():
 
 # [ UI ]: Navigate to 'Data Operations' menu
 def go_to_data_operations():
-    pass
+    while True:
+        clear_screen()
+
+        data_operations = [
+            "Back",
+            "Insert Row(s)",
+            "View All Rows",
+            "View Rows /w Filter",
+            "Update Row(s)",
+            "Delete Row(s)"
+        ]
+
+
+        # display 'Data Operations' header
+        display_header("ZenDB", "Data Operations", width=30, symbol="=")
+        display_selected_database() # display current selected database
+        display_function(0, "Exit")
+        print("=" * 32)
+
+        # display 'Data' operations
+        for index, operation in enumerate(data_operations[1:], start=1):
+            display_function(index, operation)
+        display_format(32, symbol="=")
+
+        # get user choice
+        int_input: int = get_int("user choice", ["required"])
+
+        clear_screen() # clear console screen before navigating
+
+        # do operation based on user choice
+        match int_input:
+            case 0:
+                break
+            case 1:
+                display_databases_menu()
+            case 2:
+                create_new_database_menu()
+            case 3:
+                drop_database_menu()
+            case 4:
+                select_database_menu()
+            case 5:
+                show_database_details_menu()
 
 # [ UI ]: Navigate to 'Schema Tools' menu
 def go_to_schema_tools():

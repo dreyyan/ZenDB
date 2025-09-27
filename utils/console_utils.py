@@ -49,7 +49,11 @@ def info_message(message):
     print(f"[INFO] {message}", flush=True)
 
 # UTILITY: Display formatted error message to the user
-def error_message(message, delay_seconds: Optional[float] = None):
+def error_message(message):
+    print(f"[ERROR] {message}", flush=True)
+
+# UTILITY: Display formatted error message to the user /w delay
+def error_message_with_delay(message, delay_seconds: float):
     print(f"[ERROR] {message}", end="", flush=True)
 
     if delay_seconds:

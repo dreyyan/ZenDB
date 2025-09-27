@@ -1,5 +1,6 @@
 {
-    "current_database": "",
+    "current_database": "test",
     "symbol": "=",
-    "width": 32
+    "width": 32,
+    "current_table": "test"
 }

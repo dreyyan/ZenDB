@@ -6,6 +6,7 @@ from utils.console_utils import display_format
 
 # Imports: Standard
 import json
+import logging
 
 # SETTINGS: Links/Directories
 CONFIG_FILE = "config.json"
@@ -32,15 +33,28 @@ def display_selected_database():
     global current_database, settings
     settings = load_settings()  # reload config.json
     current_database = settings.get("current_database", "")
-    print(f"Selected: {'N/A' if not current_database else current_database}")
+
+    if not current_database:
+        print(f"No connection.")
+    else:
+        print(f"Connected to: {current_database}")
+
     display_format(32, symbol="=")
 
 # [ UTILITY ]: Display currently selected table
 def display_selected_table():
-    global current_table
-    current_table = settings.get("current_table")
-    print(f"Selected: {"N/A" if current_table == "" else current_table}")
+    global current_table, settings
+    settings = load_settings() # reload config.json to reflect changes
+    current_table = settings.get("current_table", "")
+
+    if current_table == "":
+        print("No selected table.")
+    else:
+        print(f"Selected Table: {current_table}")
+
     display_format(32, symbol="=")
+
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING) # SETTING: don't show INFO logs
 
 settings = load_settings()  # Load saved settings from config.json
 current_database = settings.get("current_database", "")
@@ -49,4 +63,4 @@ current_engine = None
 
 # Auto-load engine if database is already selected
 if current_database:
-    current_engine = create_engine(f"{DATABASE_URL}/{current_database}", echo=True)
+    current_engine = create_engine(f"{DATABASE_URL}/{current_database}")

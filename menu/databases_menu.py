@@ -23,13 +23,13 @@ def create_new_database_menu():
 
         # cancel creating database if user provided no database name
         if not db_name:
-            info_message("Database creation cancelled")
+            info_message("Database creation cancelled.")
             press_to_continue()
             return
         
         # ERROR: Existing database
         if check_database_exists(db_name):
-            error_message_with_delay(f"Database with name '{db_name}' already exists", 2)
+            error_message_with_delay(f"Database with name '{db_name}' already exists.", 2)
         else: break
         
     # create database if unique database name
@@ -39,6 +39,8 @@ def create_new_database_menu():
 
 # [ METHOD ]: Drop (delete) an existing database
 def drop_database_menu():
+    global current_database, current_engine, settings
+
     # display existing databases
     display_databases()
 
@@ -48,17 +50,40 @@ def drop_database_menu():
 
         # cancel creating database if user provided no database name
         if not db_name:
-            info_message("Database dropping cancelled")
+            info_message("Database dropping cancelled.")
             press_to_continue()
             return
         
         # ERROR: Non-existing database
         if not check_database_exists(db_name):
-            error_message_with_delay(f"Database with name '{db_name}' does not exist", 2)
+            error_message_with_delay(f"Database with name '{db_name}' does not exist.", 2)
         else: break
 
-    # drop (delete) database if existing
-    drop_selected_database(db_name)
+    while True:
+        # confirm databse dropping to user
+        user_confirmation = input("Are you sure? This process cannot be undone [yes/no]: ")
+
+        if user_confirmation == "yes":
+            # drop (delete) database if existing
+            drop_selected_database(db_name)
+
+            # If we dropped the currently connected database, clear it
+            if db_name == current_database:
+                current_database = ""
+                current_engine = None
+
+                settings["current_database"] = ""
+                save_settings(settings)
+                
+                info_message("Dropped the connected database — connection cleared.")
+            break
+
+        elif user_confirmation == "no":
+            info_message("Database dropping cancelled.")
+            press_to_continue()
+            return
+        else:
+            error_message_with_delay("Invalid input, please enter 'yes' to confirm dropping and 'no to cancel.", 3)
 
     press_to_continue()
 
@@ -72,25 +97,25 @@ def connect_database_menu():
     while True:
         # prompt user to enter a database name
         db_name: str = get_str("database name ['none' to unselect]", ['required'])
-        
-        # unselect database
-        if db_name.lower() == "none" or not db_name:
-            if not current_database:
-                error_message("No database currently connected.")
-                press_to_continue()
-                return
 
-            previous_database = current_database
-            connect_database("")
+        # just exit if Enter is pressed
+        if not db_name:
+            info_message("Database selection cancelled.")
+            press_to_continue()
+            return
+
+        # unselect database if explicitly typed "none"
+        if db_name.lower() == "none":
+            connect_database("")  # disconnect/unselect
             press_to_continue()
             return
 
         # ERROR: Non-existing database
         elif not check_database_exists(db_name):
-            error_message_with_delay(f"Database '{db_name}' does not exist", 2)
+            error_message_with_delay(f"Database '{db_name}' does not exist.", 2)
         else:
             break
-
+        
     connect_database(db_name)
     press_to_continue()
 

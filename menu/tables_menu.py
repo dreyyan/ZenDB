@@ -33,22 +33,22 @@ def create_new_table_menu():
 
     while True:
         # prompt user to enter a table name
-        table_name = input("Enter table name: ").strip()
+        table_name: str = get_str("table name", ['required'])
+
+        # exit if no table name provided
         if not table_name:
-            error_message("Table name cannot be empty.")
+            info_message("Table creation cancelled.")
             press_to_continue()
+            return
         else:
-            break
+            # check if table exists
+            inspector = inspect(current_engine)
+            tables = inspector.get_table_names()
 
-    # check if table exists
-    inspector = inspect(current_engine)
-    tables = inspector.get_table_names()
-
-    # ERROR: Existing table
-    if table_name in tables:
-        error_message(f"Table '{table_name}' already exists.")
-        press_to_continue()
-        return
+            # ERROR: Existing table
+            if table_name in tables:
+                error_message_with_delay(f"Table '{table_name}' already exists.", 2)
+            else: break
 
     columns = []
 
@@ -104,8 +104,10 @@ def create_new_table_menu():
 
     # create table if unique table name
     try:
-        msg = create_table(table_name, columns)
-        success_message(msg)
+        # convert dashes (-) to underscores (_) before creating table
+        table_name = table_name.replace("-", "_")
+
+        create_table(table_name, columns)
     except Exception as e:
         error_message(f"Failed to create table: {e}")
 
@@ -132,30 +134,38 @@ def drop_table_menu():
         return
 
     # display existing tables
-    print("\nCurrent tables in the database:")
-    for i, t in enumerate(tables, start=1):
-        print(f"  {i}. {t}")
+    display_tables()
 
-    # prompt user to enter a table name
-    table_name = input("\nEnter table name to drop: ").strip()
+    while True:
+        # prompt user to enter a table name
+        table_name: str = get_str("database name", ['required'])
 
-    # ERROR: Non-existing table
-    if table_name not in tables:
-        error_message(f"Table '{table_name}' does not exist.")
-        press_to_continue()
-        return
+        # exit if no table name provided
+        if table_name == "":
+            info_message("Dropping cancelled.")
+            press_to_continue()
+            return
+        # ERROR: Non-existing table
+        elif table_name not in tables:
+            error_message_with_delay(f"Table '{table_name}' does not exist.", 2)
+        else: break
 
-    # confirm to user before dropping
-    confirm = input(f"Are you sure you want to drop '{table_name}'? (y/n): ").lower()
-    
-    if confirm == "y":
-        try:
-            drop_table(table_name)
-            success_message(f"Table '{table_name}' dropped successfully.")
-        except Exception as e:
-            error_message(f"Failed to drop table: {e}")
-    else:
-        error_message("Drop cancelled.")
+    while True:
+        # confirm databse dropping to user
+        user_confirmation = input("Are you sure? This process cannot be undone [yes/no]: ")
+        
+        if user_confirmation == "yes":
+            try:
+                drop_table(table_name)
+                break
+            except Exception as e:
+                error_message(f"Failed to drop table: {e}")
+        elif user_confirmation == "no":
+            info_message("Table dropping cancelled.")
+            press_to_continue()
+            return
+        else:
+            error_message_with_delay("Invalid input, please enter 'yes' to confirm dropping and 'no to cancel.", 3)
 
     press_to_continue()
 
@@ -180,19 +190,37 @@ def select_table_menu():
         return
 
     # display available tables
-    print("\nAvailable tables:")
-    for i, t in enumerate(tables, start=1):
-        print(f"  {i}. {t}")
+    display_tables()
 
     # prompt user for selection
-    choice = get_int("Select table number", ["required"])
+    choice = get_str("table name ['none' to unselect]", ["required"])
 
+    # just exit if Enter is pressed
+    if not choice:
+        info_message("Table selection cancelled.")
+        press_to_continue()
+        return
+    
+    # unselect table if explicitly typed "none"
+    if choice.lower() == "none":
+        select_table("")  # disconnect/unselect
+        press_to_continue()
+        return
+        
+    # check if already selected
+    if choice == current_table:
+        error_message(f"Table '{choice}' is already selected.")
+        press_to_continue()
+        return
+    
     # validate choice
-    if 1 <= choice <= len(tables):
-        current_table = tables[choice - 1]
+    if choice in tables:
+        current_table = choice
+        settings["current_table"] = current_table
+        save_settings(settings)
         success_message(f"Selected table: {current_table}")
     else:
-        error_message("Invalid selection.")
+        error_message(f"Table '{choice}' does not exist.")
         press_to_continue()
         return
 
@@ -207,6 +235,11 @@ def describe_table_schema_menu():
         error_message("No active database connection.")
         press_to_continue()
         return
+    
+    if not current_table:
+        error_message("No table selected.")
+        press_to_continue()
+        return
 
     # display each column fields
     describe_table_schema(current_table)
@@ -216,8 +249,20 @@ def describe_table_schema_menu():
 def add_or_remove_table_columns_menu():
     global current_engine, current_table
 
-    # display table details
-    display_tables()
+    if not current_table:
+        error_message("No table selected.")
+        press_to_continue()
+        return
+
+    # Reload table list to ensure rename is reflected
+    inspector = inspect(current_engine)
+    if current_table not in inspector.get_table_names():
+        error_message(f"Selected table '{current_table}' does not exist anymore.")
+        press_to_continue()
+        return
+
+    # Display schema for the selected table
+    describe_table_schema(current_table)
 
     action = input("Do you want to add or remove a column? (add/remove): ").strip().lower()
 

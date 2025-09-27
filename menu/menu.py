@@ -1,3 +1,6 @@
+# Imports: Database
+from db_utils.database_manager import connect_database
+
 # Imports: Menus
 from .databases_menu import *
 from .tables_menu import *
@@ -13,6 +16,8 @@ import time
 ''' METHODS: User Interface '''
 # [ UI ]: Navigate to 'Databases' menu
 def go_to_databases():
+    global settings, current_database, current_engine
+
     while True:
         clear_screen()
 
@@ -24,7 +29,6 @@ def go_to_databases():
             "Connect Database",
             "Show Database Details"
         ]
-
 
         # display 'Databases' header
         display_header("ZenDB", "Databases", width=30, symbol="=")
@@ -52,6 +56,15 @@ def go_to_databases():
                 create_new_database_menu()
             case 3:
                 drop_database_menu()
+
+                # reload settings and force immediate menu refresh
+                settings = load_settings()
+                current_database = settings.get("current_database", "")
+                current_engine = None if not current_database else create_engine(f"{DATABASE_URL}/{current_database}")
+
+                # refresh display
+                clear_screen()
+                continue
             case 4:
                 connect_database_menu()
             case 5:
@@ -100,10 +113,12 @@ def go_to_tables():
             case 3:
                 drop_table_menu()
             case 4:
-                describe_table_schema_menu()
+                select_table_menu()
             case 5:
-                add_or_remove_table_columns_menu()
+                describe_table_schema_menu()
             case 6:
+                add_or_remove_table_columns_menu()
+            case 7:
                 rename_table_menu()
 
 # [ UI ]: Navigate to 'Data Operations' menu
@@ -148,7 +163,7 @@ def go_to_data_operations():
             case 3:
                 drop_database_menu()
             case 4:
-                select_database_menu()
+                connect_database_menu()
             case 5:
                 show_database_details_menu()
 
@@ -166,6 +181,11 @@ def go_to_settings():
 
 # [ UI ]: Display main menu
 def display_main_menu() -> None:
+    global current_engine, current_database, settings
+
+    if settings.get("current_database") and current_engine is None:
+        connect_database(settings["current_database"])
+
     while True:
         clear_screen()
 

@@ -140,7 +140,7 @@ def display_tables():
         return
     
     inspector = inspect(current_engine)
-    tables = inspector.get_table_names()
+    tables = inspector.get_table_names(schema="public")
 
     # Display header
     display_center("[ Table List ]", 32)
@@ -149,7 +149,6 @@ def display_tables():
     if not tables:
         info_message("No tables found in the current database.")
     else:
-        print("\nCurrent tables in the database:")
         for i, table in enumerate(tables, start=1):
             print(f"  {i}. {table}")
 
@@ -191,7 +190,35 @@ def drop_table(table_name: str):
     metadata = MetaData()
     table = Table(table_name, metadata, autoload_with=current_engine)
     metadata.drop_all(current_engine, [table])
-    success_message(f"Table '{table_name}' dropped.")
+    success_message(f"Table '{table_name}' dropped successfully.")
+
+# [ METHOD ]: Select a table
+def select_table(name: str):
+    global current_table, settings
+
+    # Unselect table if empty
+    if not name:
+        current_table = ""
+        settings["current_table"] = ""
+        save_settings(settings)
+        success_message("Unselected table.")
+        return None
+
+    # If already selected
+    if name == current_table:
+        error_message(f"Already selected table: '{name}'")
+        return current_table
+
+    try:
+        current_table = name
+        settings["current_table"] = name
+        save_settings(settings)
+        success_message(f"Selected table: {name}!")
+        return current_table
+    except Exception as e:
+        error_message(f"Failed to select table: {e}")
+        return None
+
 
 # [ METHOD ]: Describe a table schema
 def describe_table_schema(table_name: str):
@@ -237,18 +264,35 @@ def remove_column(table_name: str, col_name: str):
 
 # [ METHOD ]: Rename a table
 def rename_table(new_name: str):
-    global current_engine, current_table
+    global current_engine, current_table, settings
 
-    # ERROR: no database connection
     if not require_engine() or current_engine is None:
-        return []
+        return None
 
-    # Update current table's name
-    current_table = new_name
+    old_name = current_table
 
-    with current_engine.connect() as conn:
-        conn.execute(text(f"ALTER TABLE {current_table} RENAME TO {new_name};"))
-    success_message(f"Table renamed from '{current_table}' to '{new_name}'.")
+    try:
+        with current_engine.connect() as conn:
+            conn.execute(text(f"ALTER TABLE {old_name} RENAME TO {new_name};"))
+
+        # Update runtime state
+        current_table = new_name
+
+        # Update persistent state
+        settings["current_table"] = new_name
+        save_settings(settings)
+
+        success_message(f"Table renamed from '{old_name}' to '{new_name}'.")
+
+        # Force reload table names to avoid stale inspector state
+        inspector = inspect(current_engine)
+        inspector.get_table_names()
+
+        return current_table
+
+    except Exception as e:
+        error_message(f"Failed to rename table: {e}")
+        return None
 
 
 ''' METHODS: Data Operations '''

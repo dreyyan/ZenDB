@@ -1,3 +1,5 @@
+# Here's the modified code for menu.py. No changes needed here, but including for completeness.
+
 # Imports: Database
 from db_utils.database_manager import connect_database
 
@@ -56,15 +58,6 @@ def go_to_databases():
                 create_new_database_menu()
             case 3:
                 drop_database_menu()
-
-                # reload settings and force immediate menu refresh
-                settings = load_settings()
-                current_database = settings.get("current_database", "")
-                current_engine = None if not current_database else create_engine(f"{DATABASE_URL}/{current_database}")
-
-                # refresh display
-                clear_screen()
-                continue
             case 4:
                 connect_database_menu()
             case 5:

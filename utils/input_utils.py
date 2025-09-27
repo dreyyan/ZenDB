@@ -1,5 +1,5 @@
 from typing import Optional, List
-from .console_utils import error_message, press_to_continue
+from .console_utils import error_message, error_message_with_delay, press_to_continue
 
 # [ METHOD ]: Get a 'string' input from the user
 def get_str(field: str, restrictions: Optional[List[str]]) -> str:
@@ -27,8 +27,7 @@ def get_int(field: str, restrictions: Optional[List[str]] = None) -> int:
         try:
             int_input = int(user_input)
         except ValueError:
-            error_message("Invalid input, please enter a valid number")
-            press_to_continue()
+            error_message_with_delay("Invalid input, please enter a valid number", 2)
             continue
 
         # check restrictions

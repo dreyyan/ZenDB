@@ -14,6 +14,9 @@ from db_utils.database_manager import *
 def display_tables_menu():
     global current_engine
 
+    # display header
+    display_header("ZenDB", "Display Tables", width=30, symbol="=")
+
     display_tables()
 
     press_to_continue()
@@ -21,6 +24,9 @@ def display_tables_menu():
 # [ METHOD ]: Create a new table
 def create_new_table_menu():
     global current_engine
+
+    # display header
+    display_header("ZenDB", "Create New Table", width=30, symbol="=")
 
     # ERROR: No database connection
     if current_engine is None:
@@ -117,6 +123,9 @@ def create_new_table_menu():
 def drop_table_menu():
     global current_engine
 
+    # display header
+    display_header("ZenDB", "Drop Table", width=30, symbol="=")
+
     # ERROR: No database connection
     if current_engine is None:
         error_message("No active database connection.")
@@ -172,6 +181,9 @@ def drop_table_menu():
 # [ METHOD ]: Select an existing table
 def select_table_menu():
     global current_engine, current_table
+
+    # display header
+    display_header("ZenDB", "Select Table", width=30, symbol="=")
 
     # ERROR: No active database connection
     if current_engine is None:
@@ -230,6 +242,9 @@ def select_table_menu():
 def describe_table_schema_menu():
     global current_engine, current_table
 
+    # display header
+    display_header("ZenDB", "Table Schema", width=30, symbol="=")
+
     # ERROR: No database connection
     if current_engine is None:
         error_message("No active database connection.")
@@ -249,6 +264,16 @@ def describe_table_schema_menu():
 def add_or_remove_table_columns_menu():
     global current_engine, current_table
 
+    # display header
+    display_header("ZenDB", "Modify Table Columns", width=30, symbol="=")
+
+    # ERROR: No database connection
+    if current_engine is None:
+        error_message("No active database connection.")
+        press_to_continue()
+        return
+    
+    # ERROR: No selected table
     if not current_table:
         error_message("No table selected.")
         press_to_continue()
@@ -283,6 +308,9 @@ def add_or_remove_table_columns_menu():
 # [ METHOD ]: Rename a selected table
 def rename_table_menu():
     global current_engine, current_table
+
+    # display header
+    display_header("ZenDB", "Rename Table", width=30, symbol="=")
 
     # ERROR: No database connection
     if current_engine is None:

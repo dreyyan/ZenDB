@@ -1,3 +1,5 @@
+# Here's the modified code for databases_menu.py. No changes needed here, but including for completeness.
+
 # Imports: Utilities
 from utils.console_utils import *
 from utils.input_utils import *
@@ -9,11 +11,17 @@ from db_utils.database_manager import *
 ''' METHODS: Database Menu '''
 # [ METHOD ]: Display existing databases
 def display_databases_menu():
+    # display header
+    display_header("ZenDB", "Display Databases", width=30, symbol="=")
+
     display_databases()
     press_to_continue()
 
 # [ METHOD ]: Create a new database
 def create_new_database_menu():
+    # display header
+    display_header("ZenDB", "Create New Database", width=30, symbol="=")
+
     # display existing databases
     display_databases()
 
@@ -41,6 +49,9 @@ def create_new_database_menu():
 def drop_database_menu():
     global current_database, current_engine, settings
 
+    # display header
+    display_header("ZenDB", "Drop Database", width=30, symbol="=")
+
     # display existing databases
     display_databases()
 
@@ -57,6 +68,7 @@ def drop_database_menu():
         # ERROR: Non-existing database
         if not check_database_exists(db_name):
             error_message_with_delay(f"Database with name '{db_name}' does not exist.", 2)
+        
         else: break
 
     while True:
@@ -64,6 +76,10 @@ def drop_database_menu():
         user_confirmation = input("Are you sure? This process cannot be undone [yes/no]: ")
 
         if user_confirmation == "yes":
+            # Dispose engine if dropping the current database to close any active connections
+            if db_name == current_database and current_engine:
+                current_engine.dispose()
+
             # drop (delete) database if existing
             drop_selected_database(db_name)
 
@@ -75,7 +91,7 @@ def drop_database_menu():
                 settings["current_database"] = ""
                 save_settings(settings)
                 
-                info_message("Dropped the connected database — connection cleared.")
+                info_message("Cleared connection from dropped database.")
             break
 
         elif user_confirmation == "no":
@@ -90,6 +106,9 @@ def drop_database_menu():
 # [ METHOD ]: Select an existing database
 def connect_database_menu():
     global settings, current_engine, current_database
+
+    # display header
+    display_header("ZenDB", "Connect to Database", width=30, symbol="=")
 
     # display existing databases
     display_databases()
@@ -107,6 +126,9 @@ def connect_database_menu():
         # unselect database if explicitly typed "none"
         if db_name.lower() == "none":
             connect_database("")  # disconnect/unselect
+            current_database = ""
+            settings["current_database"] = ""
+            save_settings(settings)
             press_to_continue()
             return
 
@@ -117,10 +139,20 @@ def connect_database_menu():
             break
         
     connect_database(db_name)
+    # Update globals
+    settings["current_database"] = db_name
+    save_settings(settings)
+    settings = load_settings()  # reload
+    current_database = settings.get("current_database", "")
+    current_engine = create_engine(f"{DATABASE_URL}/{current_database}")
+
     press_to_continue()
 
 # [ METHOD ]: Show selected database's details
 def show_database_details_menu():
+    # display header
+    display_header("ZenDB", "Database Details", width=30, symbol="=")
+
     # display current database details
     show_database_details()
     

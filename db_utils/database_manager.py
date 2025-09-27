@@ -1,3 +1,5 @@
+# Here's the modified code for database_manager.py. Updated drop_selected_database to force terminate any active connections before dropping the database. This ensures the drop succeeds even if there are lingering connections. Also, changed create_new_database, check_database_exists, and drop_selected_database to use URL strings instead of creating unnecessary engines.
+
 # Imports: SQLAlchemy
 from sqlalchemy.orm import declarative_base # for defining database tables
 from sqlalchemy import create_engine # for creating the db connection
@@ -25,37 +27,57 @@ def display_databases() -> None:
         result = conn.execute(text("SELECT datname FROM pg_database WHERE datistemplate = false;"))
         databases = result.fetchall()
 
-    display_center("[ Database List ]", 32)
     display_format(32, '=')
+    display_center("Available Databases:", 32)
     for db in databases:
         print(f"* {db[0]}")
     display_format(32, '=')
 
 # [ METHOD ]: Attempt to create a database if not existing
 def check_database_exists(name: str) -> bool:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
-    return database_exists(engine.url)
+    return database_exists(f"{DATABASE_URL}/{name}")
 
 # [ METHOD ]: Attempt to create a database if not existing
 def create_new_database(name: str) -> None:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
+    url = f"{DATABASE_URL}/{name}"
 
     # create database if non-existing
-    if not database_exists(engine.url):
-        create_database(engine.url) # utility to create database
+    if not database_exists(url):
+        create_database(url) # utility to create database
         success_message(f"Database '{name}' created!")
     else: # ERROR: Already existing database
         error_message_with_delay(f"Database '{name}' already exists.", 2)
 
 # [ METHOD ]: Drop a database if it exists
 def drop_selected_database(name: str) -> None:
-    engine = create_engine(f"{DATABASE_URL}/{name}", echo=False) # create engine for specified database name
-
-    if check_database_exists(name):
-        drop_database(engine.url)
-        success_message(f"Database '{name}' has been dropped.")
-    else:
+    if not check_database_exists(name):
         error_message_with_delay(f"Database '{name}' does not exist.", 2)
+        return
+
+    # Connect to default 'postgres' database to execute commands
+    default_engine = create_engine(f"{DATABASE_URL}/postgres", echo=False)
+
+    try:
+        with default_engine.connect() as conn:
+            # Ensure autocommit mode for termination
+            conn.execution_options(isolation_level="AUTOCOMMIT")
+
+            # Terminate all connections to the target database
+            terminate_query = text(f"""
+                SELECT pg_terminate_backend(pid)
+                FROM pg_stat_activity
+                WHERE datname = :dbname
+                  AND pid <> pg_backend_pid();
+            """)
+            conn.execute(terminate_query, {"dbname": name})
+
+            # Now drop the database
+            drop_query = text(f"DROP DATABASE {name};")
+            conn.execute(drop_query)
+
+        success_message(f"Database '{name}' has been dropped.")
+    except Exception as e:
+        error_message(f"Failed to drop database: {str(e)}")
 
 # [ METHOD ]: Select database
 def connect_database(name: str):
@@ -64,7 +86,6 @@ def connect_database(name: str):
     # unselect
     if not name:
         current_engine = None
-        previous_database: str = current_database
         current_database = ""
         settings["current_database"] = ""
         save_settings(settings)
@@ -94,7 +115,7 @@ def show_database_details():
     current_database = settings.get("current_database")
 
     if not current_database:
-        error_message_with_delay("No database selected.", 2)
+        error_message("No database selected.")
         return
 
     # Create engine connected to the selected database

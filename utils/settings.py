@@ -43,7 +43,14 @@ def display_selected_database():
 
 # [ UTILITY ]: Display currently selected table
 def display_selected_table():
-    global current_table, settings
+    global current_table, current_database, settings
+
+    # if no database connection, don't display the previously selected table
+    if current_database == "":
+        print("No connection.")
+        display_format(32, symbol="=")
+        return
+    
     settings = load_settings() # reload config.json to reflect changes
     current_table = settings.get("current_table", "")
 

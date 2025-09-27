@@ -321,15 +321,19 @@ def rename_table_menu():
     # display old table name
     print(f"Old table name: {current_table}")
 
-    # enter new table name
-    new_name = input("Enter new table name: ").strip()
+    while True:
+        # enter new table name
+        new_name = get_str("new table name", [])
 
-    # ERROR: Empty new table name
-    if not new_name:
-        error_message("New table name cannot be empty.")
-        press_to_continue()
-        return
-
+        # ERROR: Same old and new table name
+        if current_table == new_name:
+            error_message_with_delay("New table name cannot be the same as current table name.", 3)
+        elif not new_name: # If empty input, cancel renaming table
+            info_message("Table renaming cancelled.")
+            press_to_continue()
+            return
+        else: break
+    
     # rename table if existing
     rename_table(new_name)
 

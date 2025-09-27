@@ -3,6 +3,7 @@ from sqlalchemy import Engine, create_engine # for creating the db connection
 
 # Imports: Utilities
 from utils.console_utils import display_format
+from utils.input_utils import error_message
 
 # Imports: Standard
 import json
@@ -45,16 +46,14 @@ def display_selected_database():
 def display_selected_table():
     global current_table, current_database, settings
 
-    # if no database connection, don't display the previously selected table
-    if current_database == "":
-        print("No connection.")
-        display_format(32, symbol="=")
-        return
-    
     settings = load_settings() # reload config.json to reflect changes
+    current_database = settings.get("current_database", "")
     current_table = settings.get("current_table", "")
 
-    if current_table == "":
+    # if no database connection, don't display previously selected table
+    if not current_database:
+        print("No connection.")
+    elif not current_table:
         print("No selected table.")
     else:
         print(f"Selected Table: {current_table}")

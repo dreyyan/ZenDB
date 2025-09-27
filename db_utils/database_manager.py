@@ -100,6 +100,10 @@ def connect_database(name: str):
     try:
         connection_url = f"{DATABASE_URL}/{name}"
         current_engine = create_engine(connection_url, echo=False)
+
+        with current_engine.connect() as conn:
+            pass # Forces an actual connection test
+
         current_database = name
         settings["current_database"] = name
         save_settings(settings)
@@ -202,16 +206,26 @@ def create_table(table_name: str, columns: list[Column]):
 
 # [ METHOD ]: Drop a table
 def drop_table(table_name: str):
-    global current_engine
+    global current_engine, current_table, settings
     
     # ERROR: no database connection
     if not require_engine() or current_engine is None:
         return
     
-    metadata = MetaData()
-    table = Table(table_name, metadata, autoload_with=current_engine)
-    metadata.drop_all(current_engine, [table])
-    success_message(f"Table '{table_name}' dropped successfully.")
+    try:
+        metadata = MetaData()
+        table = Table(table_name, metadata, autoload_with=current_engine)
+        metadata.drop_all(current_engine, [table])
+        success_message(f"Table '{table_name}' dropped successfully.")
+
+        # If the dropped table is the current one
+        if table_name == current_table:
+            current_table = ""
+            settings["current_table"] = ""
+            save_settings(settings)
+
+    except Exception as e:
+        error_message(f"Failed to drop table: {e}")
 
 # [ METHOD ]: Select a table
 def select_table(name: str):
@@ -252,7 +266,7 @@ def describe_table_schema(table_name: str):
     inspector = inspect(current_engine)
     columns = inspector.get_columns(table_name)
     
-    display_center(f"[ {table_name} - Schema ]", 32)
+    display_center(f"[ '{table_name}' - Schema ]", 32)
     display_format(32, '=')
     for col in columns:
         print(f"{col['name']} - {col['type']} (nullable={col['nullable']})")
@@ -278,7 +292,22 @@ def remove_column(table_name: str, col_name: str):
     # ERROR: no database connection
     if not require_engine() or current_engine is None:
         return []
-    
+
+    inspector = inspect(current_engine)
+    columns = inspector.get_columns(table_name)
+
+    # ERROR: only 1 column in the table
+    if len(columns) <= 1:
+        error_message(f"Cannot remove column '{col_name}'. Table '{table_name}' must have at least one column.")
+        return
+
+    # ERROR: column does not exist
+    col_names = [col["name"] for col in columns]
+    if col_name not in col_names:
+        error_message(f"Column '{col_name}' does not exist in table '{table_name}'.")
+        return
+
+    # Drop column if safe
     with current_engine.connect() as conn:
         conn.execute(text(f"ALTER TABLE {table_name} DROP COLUMN {col_name};"))
     success_message(f"Column '{col_name}' removed from '{table_name}'.")

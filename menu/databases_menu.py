@@ -139,6 +139,7 @@ def connect_database_menu():
             break
         
     connect_database(db_name)
+    
     # Update globals
     settings["current_database"] = db_name
     save_settings(settings)

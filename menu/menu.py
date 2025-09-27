@@ -6,6 +6,7 @@ from db_utils.database_manager import connect_database
 # Imports: Menus
 from .databases_menu import *
 from .tables_menu import *
+from .data_operations_menu import *
 
 # Imports: Utilities
 from utils.console_utils import *
@@ -128,7 +129,6 @@ def go_to_data_operations():
             "Delete Row(s)"
         ]
 
-
         # display 'Data Operations' header
         display_header("ZenDB", "Data Operations", width=30, symbol="=")
         display_selected_database() # display current selected database
@@ -150,15 +150,15 @@ def go_to_data_operations():
             case 0:
                 break
             case 1:
-                display_databases_menu()
+                insert_rows_menu()
             case 2:
-                create_new_database_menu()
+                view_all_rows_menu()
             case 3:
-                drop_database_menu()
+                view_rows_with_filter_menu()
             case 4:
-                connect_database_menu()
+                update_rows_menu()
             case 5:
-                show_database_details_menu()
+                delete_rows_menu()
 
 # [ UI ]: Navigate to 'Schema Tools' menu
 def go_to_schema_tools():
@@ -209,7 +209,6 @@ def display_main_menu() -> None:
         match int_input:
             case 0: # Exit system
                 print("Exiting ZenDB...", end="")
-                time.sleep(2)
                 exit(0)
             case 1:
                 go_to_databases()

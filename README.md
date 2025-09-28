@@ -25,9 +25,9 @@ The primary purpose of ZenDB is to simplify database management for those learni
 🔄 Enhanced console UI with better formatting and navigation  
 
 ## PROJECT DETAILS
-📌 **Author:** [Your Name/Username]  
-📌 **Started:** [Start Date, e.g., 2025-01-01]  
-📌 **Finished:** [Finish Date, e.g., 2025-09-28 or Ongoing]  
+📌 **Author:** dreyyan  
+📌 **Started:** 2025-09-26  
+📌 **Finished:** 2025-09-28  
 
 ## TECH STACK
 🛠️ **Framework:** SQLAlchemy, Alembic  

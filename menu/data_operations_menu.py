@@ -10,9 +10,9 @@ from utils.settings import *
 # Imports: Database Manager
 from db_utils.database_manager import *
 
-''' METHODS: Data Operations '''
+''' UIS: Data Operations '''
 
-# [ METHOD ]: Insert rows into current table
+# [ UI ]: Insert rows into current table
 def insert_rows_menu():
     global current_engine, current_table
 
@@ -35,7 +35,7 @@ def insert_rows_menu():
 
     # ask user how many rows to input
     while True:
-        row_count_str = get_str("# of rows ['none' to unselect]", ['required'])
+        row_count_str = get_str("# of row/s", ['required'])
 
         # just exit if Enter is pressed
         if not row_count_str:
@@ -82,14 +82,14 @@ def insert_rows_menu():
                 conn.execute(query, values)
                 inserted += 1
 
-        success_message(f"{inserted} row(s) inserted successfully!")
+        success_message(f"\n{inserted} row(s) inserted successfully!")
     except Exception as e:
         error_message(f"Failed to insert rows: {e}")
 
     press_to_continue()
 
 
-# [ METHOD ]: Display all rows in selected table
+# [ UI ]: Display all rows in selected table
 def view_all_rows_menu():
     global current_engine, current_table
 
@@ -117,7 +117,7 @@ def view_all_rows_menu():
     press_to_continue()
 
 
-# [ METHOD ]: Display filtered rows
+# [ UI ]: Display filtered rows
 def view_rows_with_filter_menu():
     global current_engine, current_table
 
@@ -151,7 +151,7 @@ def view_rows_with_filter_menu():
     press_to_continue()
 
 
-# [ METHOD ]: Update rows in selected table
+# [ UI ]: Update rows in selected table
 def update_rows_menu():
     global current_engine, current_table
 
@@ -184,7 +184,7 @@ def update_rows_menu():
     press_to_continue()
 
 
-# [ METHOD ]: Delete rows in selected table
+# [ UI ]: Delete rows in selected table
 def delete_rows_menu():
     global current_engine, current_table
 

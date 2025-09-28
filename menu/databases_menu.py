@@ -8,8 +8,8 @@ from utils.settings import *
 # Imports: Database Manager
 from db_utils.database_manager import *
 
-''' METHODS: Database Menu '''
-# [ METHOD ]: Display existing databases
+''' UIS: Database Menu '''
+# [ UI ]: Display existing databases
 def display_databases_menu():
     # display header
     display_header("ZenDB", "Display Databases", width=30, symbol="=")
@@ -17,7 +17,7 @@ def display_databases_menu():
     display_databases()
     press_to_continue()
 
-# [ METHOD ]: Create a new database
+# [ UI ]: Create a new database
 def create_new_database_menu():
     # display header
     display_header("ZenDB", "Create New Database", width=30, symbol="=")
@@ -45,7 +45,7 @@ def create_new_database_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Drop (delete) an existing database
+# [ UI ]: Drop (delete) an existing database
 def drop_database_menu():
     global current_database, current_engine, settings
 
@@ -103,7 +103,7 @@ def drop_database_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Select an existing database
+# [ UI ]: Select an existing database
 def connect_database_menu():
     global settings, current_engine, current_database
 
@@ -149,7 +149,7 @@ def connect_database_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Show selected database's details
+# [ UI ]: Show selected database's details
 def show_database_details_menu():
     # display header
     display_header("ZenDB", "Database Details", width=30, symbol="=")

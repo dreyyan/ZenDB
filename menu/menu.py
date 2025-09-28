@@ -7,6 +7,9 @@ from db_utils.database_manager import connect_database
 from .databases_menu import *
 from .tables_menu import *
 from .data_operations_menu import *
+from .schema_tools_menu import *
+from .utilities_menu import *
+from .settings_menu import *
 
 # Imports: Utilities
 from utils.console_utils import *
@@ -162,15 +165,128 @@ def go_to_data_operations():
 
 # [ UI ]: Navigate to 'Schema Tools' menu
 def go_to_schema_tools():
-    pass
+    while True:
+        clear_screen()
+
+        data_operations = [
+            "Back",
+            "Generate Model Class",
+            "View Model Class Code",
+            "Sync Model to Table"
+        ]
+
+        # display 'Data Operations' header
+        display_header("ZenDB", "Schema Tools", width=30, symbol="=")
+        # display_selected_database() # display current selected database
+        display_function(0, "Exit")
+        print("=" * 32)
+
+        # display 'Data' operations
+        for index, operation in enumerate(data_operations[1:], start=1):
+            display_function(index, operation)
+        display_format(32, symbol="=")
+
+        # get user choice
+        int_input: int = get_int("user choice", ["required"])
+
+        clear_screen() # clear console screen before navigating
+
+        # do operation based on user choice
+        match int_input:
+            case 0:
+                break
+            case 1:
+                generate_model_class_menu()
+            case 2:
+                view_model_class_code_menu()
+            case 3:
+                sync_model_to_table_menu()
 
 # [ UI ]: Navigate to 'Utilities' menu
 def go_to_utilities():
-    pass
+    while True:
+        clear_screen()
+
+        data_operations = [
+            "Back",
+            "Run Raw SQL Queries",
+            "Export Table Data",
+            "Import Table Data",
+            "Search Across Tables",
+            "Show Recent Queries"
+        ]
+
+        # display 'Data Operations' header
+        display_header("ZenDB", "Utilities", width=30, symbol="=")
+        # display_selected_database() # display current selected database
+        display_function(0, "Exit")
+        print("=" * 32)
+
+        # display 'Data' operations
+        for index, operation in enumerate(data_operations[1:], start=1):
+            display_function(index, operation)
+        display_format(32, symbol="=")
+
+        # get user choice
+        int_input: int = get_int("user choice", ["required"])
+
+        clear_screen() # clear console screen before navigating
+
+        # do operation based on user choice
+        match int_input:
+            case 0:
+                break
+            case 1:
+                run_raw_sql_queries_menu()
+            case 2:
+                export_table_data_menu()
+            case 3:
+                import_table_data_menu()
+            case 4:
+                search_across_tables_menu()
+            case 5:
+                show_recent_queries_menu()
 
 # [ UI ]: Navigate to 'Settings' menu
 def go_to_settings():
-    pass
+    while True:
+        clear_screen()
+
+        data_operations = [
+            "Back",
+            "Configure Default Database Connection",
+            "Manage Database Connections",
+            "Set Naming Conventions for Models",
+            "Configure Logging"
+        ]
+
+        # display 'Data Operations' header
+        display_header("ZenDB", "Settings", width=30, symbol="=")
+        display_function(0, "Exit")
+        print("=" * 32)
+
+        # display 'Data' operations
+        for index, operation in enumerate(data_operations[1:], start=1):
+            display_function(index, operation)
+        display_format(32, symbol="=")
+
+        # get user choice
+        int_input: int = get_int("user choice", ["required"])
+
+        clear_screen() # clear console screen before navigating
+
+        # do operation based on user choice
+        match int_input:
+            case 0:
+                break
+            case 1:
+                configure_default_database_connection_menu()
+            case 2:
+                manage_database_connections_menu()
+            case 3:
+                set_naming_conventions_for_models_menu()
+            case 4:
+                configure_logging_menu()
 
 # [ UI ]: Display main menu
 def display_main_menu() -> None:

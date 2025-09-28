@@ -9,8 +9,8 @@ from utils.input_utils import *
 # Imports: Database Manager
 from db_utils.database_manager import *
 
-''' METHODS: Tables Menu '''
-# [ METHOD ]: Display existing tables
+''' UIS: Tables Menu '''
+# [ UI ]: Display existing tables
 def display_tables_menu():
     global current_engine
 
@@ -21,7 +21,7 @@ def display_tables_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Create a new table
+# [ UI ]: Create a new table
 def create_new_table_menu():
     global current_engine
 
@@ -119,7 +119,7 @@ def create_new_table_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Drop (delete) an existing table
+# [ UI ]: Drop (delete) an existing table
 def drop_table_menu():
     global current_engine
 
@@ -178,7 +178,7 @@ def drop_table_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Select an existing table
+# [ UI ]: Select an existing table
 def select_table_menu():
     global current_engine, current_table
 
@@ -238,7 +238,7 @@ def select_table_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Display and describe a selected table's schema (column fields)
+# [ UI ]: Display and describe a selected table's schema (column fields)
 def describe_table_schema_menu():
     global current_engine, current_table
 
@@ -260,7 +260,7 @@ def describe_table_schema_menu():
     describe_table_schema(current_table)
     press_to_continue()
 
-# [ METHOD ]: Add or remove table columns from a selected table
+# [ UI ]: Add or remove table columns from a selected table
 def add_or_remove_table_columns_menu():
     global current_engine, current_table
 
@@ -305,7 +305,7 @@ def add_or_remove_table_columns_menu():
 
     press_to_continue()
 
-# [ METHOD ]: Rename a selected table
+# [ UI ]: Rename a selected table
 def rename_table_menu():
     global current_engine, current_table
 
